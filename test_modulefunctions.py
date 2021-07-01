@@ -47,8 +47,16 @@ def test_softmax_forward():
     assert np.allclose(m.softmax_forward(input_vector), softmax(input_vector))
 
 
-def test_crossentropy_forward():
+def test_cross_entropy_forward():
     m = CrossEntropyLayer(3)
     real_vector = np.array([0, 1, 0])
     predicted_vector = np.array([0.25, 0.5, 0.25])
-    assert np.array_equal(m.crossentropy_forward(real_vector, predicted_vector), scipy.stats.entropy(real_vector, predicted_vector))
+    assert np.array_equal(m.cross_entropy_forward(real_vector, predicted_vector), scipy.stats.entropy(real_vector, predicted_vector))
+
+
+def test_cross_entropy_backward():
+    m = CrossEntropyLayer(3)
+    real_vector = np.array([0, 1, 0])
+    predicted_vector = np.array([0.25, 0.5, 0.25])
+    resultant_vector = np.array([-1 * real_vector[i] / predicted_vector[i] for i in range(0, len(real_vector))])
+    assert np.array_equal(resultant_vector, m.cross_entropy_backward(real_vector, predicted_vector, "placeholder", 1))
