@@ -87,3 +87,28 @@ class SoftmaxLayer:
         denominator_value = np.sum(np.exp(input_example))
         collection_vector = [value / denominator_value for value in numerator_vector]
         return collection_vector
+
+
+class CrossEntropyLayer:
+    r"""Cross-entropy calculation module
+
+            Args:
+                input_features: Size of the input
+
+            Shape:
+
+            Attributes:
+
+
+            """
+    def __init__(self, input_features: int):
+        self.input_features = input_features
+
+    def crossentropy_forward(self, real_vector, predicted_vector):
+        """Calculates the cross-entropy between two vectors
+
+        :param real_vector: One-hot vector where only the real label is 1.
+        :param predicted_vector: Vector containing the probability of each class for one example
+        :return: Scalar cross-entropy value
+        """
+        return -np.dot(real_vector.T, np.log(predicted_vector))

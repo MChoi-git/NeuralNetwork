@@ -3,6 +3,7 @@ from neuralnetmodules import *
 import numpy as np
 import scipy
 from scipy.special import softmax
+from scipy.stats import entropy
 
 
 def sigmoid(input_value):
@@ -44,3 +45,10 @@ def test_softmax_forward():
     m = SoftmaxLayer(3)
     input_vector = np.array([8, 5, 0])
     assert np.allclose(m.softmax_forward(input_vector), softmax(input_vector))
+
+
+def test_crossentropy_forward():
+    m = CrossEntropyLayer(3)
+    real_vector = np.array([0, 1, 0])
+    predicted_vector = np.array([0.25, 0.5, 0.25])
+    assert np.array_equal(m.crossentropy_forward(real_vector, predicted_vector), scipy.stats.entropy(real_vector, predicted_vector))
