@@ -88,6 +88,18 @@ class SoftmaxLayer:
         collection_vector = [value / denominator_value for value in numerator_vector]
         return collection_vector
 
+    def softmax_backward(self, softmax_forward_output_vector, predicted_vector, previous_grad):
+        """Calculates the gradient wrt. the predicted vector for the backward computation of the softmax.
+
+        :param softmax_forward_output_vector: Scalar softmax output vector from the output of the forward computation.
+        :param predicted_vector: Vector containing the probability of each class for one example.
+        :param previous_grad: Vector containing the previous gradient.
+        :return: Gradient matrix, where the Jacobian of the softmax is scaled by the previous gradient vector.
+        """
+        diagonal_predicted_vector = np.diagflat(predicted_vector)
+        squared_predicted_vector = np.square(predicted_vector)
+        return np.multiply(previous_grad, np.subtract(diagonal_predicted_vector, squared_predicted_vector))
+
 
 class CrossEntropyLayer:
     r"""Cross-entropy calculation module
@@ -114,7 +126,7 @@ class CrossEntropyLayer:
         return -np.dot(real_vector.T, np.log(predicted_vector))
 
     def cross_entropy_backward(self, real_vector, predicted_vector, x_entropy_forward_output_vector, previous_grad):
-        """Calculates the gradient wrt. the predicted vector for the backward computation.
+        """Calculates the gradient wrt. the predicted vector for the backward computation of the cross-entropy.
 
         :param real_vector: One-hot vector where only the real label is 1.
         :param predicted_vector: Vector containing the probability of each class for one example.

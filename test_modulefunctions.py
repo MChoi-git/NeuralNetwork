@@ -47,6 +47,16 @@ def test_softmax_forward():
     assert np.allclose(m.softmax_forward(input_vector), softmax(input_vector))
 
 
+def test_softmax_backward():
+    m = SoftmaxLayer(3)
+    diagonal_predicted_vector = np.array([[0.25, 0, 0],
+                                         [0, 0.25, 0],
+                                         [0, 0, 0.5]])
+    cross_product_vector = np.array([0.25**2, 0.25**2, 0.5**2])
+    resultant = np.array([value - cross_product_vector for value in diagonal_predicted_vector])
+    assert np.array_equal(2 * resultant, m.softmax_backward("Placeholder", np.array([0.25, 0.25, 0.5]), np.array([2, 2, 2])))
+
+
 def test_cross_entropy_forward():
     m = CrossEntropyLayer(3)
     real_vector = np.array([0, 1, 0])
