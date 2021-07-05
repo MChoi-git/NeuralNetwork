@@ -25,7 +25,7 @@ class LinearLayer:
         self.input_features = input_features
         self.output_features = output_features
         if weight_init_flag:
-            self.weights = np.zeros((self.output_features, self.input_features))    # Account for folded bias term here later
+            self.weights = np.zeros((output_features, input_features))    # Account for folded bias term here later
         else:
             self.weights = np.random.uniform(low=-0.1, high=0.1, size=(self.output_features, self.input_features))
 
@@ -118,7 +118,6 @@ class SoftmaxLayer:
         diagonal_predicted_vector = np.diagflat(predicted_vector)
         squared_predicted_vector = predicted_vector @ predicted_vector.T
         return previous_grad.T @ np.subtract(diagonal_predicted_vector, squared_predicted_vector)
-        # return np.multiply(previous_grad, np.subtract(diagonal_predicted_vector, squared_predicted_vector))
 
 
 class CrossEntropyLayer:

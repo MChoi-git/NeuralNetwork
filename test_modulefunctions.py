@@ -1,5 +1,6 @@
 import pytest
 from neuralnetmodules import *
+import train
 import numpy as np
 import scipy
 from scipy.special import softmax
@@ -49,12 +50,11 @@ def test_softmax_forward():
 
 def test_softmax_backward():
     m = SoftmaxLayer(3)
-    diagonal_predicted_vector = np.array([[0.25, 0, 0],
-                                         [0, 0.25, 0],
-                                         [0, 0, 0.5]])
-    cross_product_vector = np.array([0.25**2, 0.25**2, 0.5**2])
-    resultant = np.array([value - cross_product_vector for value in diagonal_predicted_vector])
-    assert np.array_equal(2 * resultant, m.softmax_backward(np.array([0.25, 0.25, 0.5]), np.array([2, 2, 2])))
+    diagonal_predicted_vector = np.diagflat(np.arange(3))
+    resultant = diagonal_predicted_vector - np.arange(3) @ np.arange(3)
+    grad_resultant = np.arange(3).T @ resultant
+    assert np.array_equal(grad_resultant.shape, m.softmax_backward(np.arange(3), np.arange(3)).shape)
+
 
 
 def test_cross_entropy_forward():
@@ -70,3 +70,4 @@ def test_cross_entropy_backward():
     predicted_vector = np.array([0.25, 0.5, 0.25])
     resultant_vector = np.array([-1 * real_vector[i] / predicted_vector[i] for i in range(0, len(real_vector))])
     assert np.array_equal(resultant_vector, m.cross_entropy_backward(real_vector, predicted_vector, 1))
+
