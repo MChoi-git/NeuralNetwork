@@ -35,7 +35,18 @@ class LinearLayer:
         :param input_example: Numpy vector of feature values for one example
         :return: Resultant vector
         """
-        return np.dot(input_example, self.weights.T)
+        return input_example @ self.weights.T
+
+    def linear_backward(self, input_example, previous_grad):
+        """Calculates the gradient wrt. weight and input example
+
+        :param input_example: Vector of feature inputs
+        :param previous_grad: Matrix calculated by the previous backpropagation step
+        :return: Gradient matrix
+        """
+        weight_gradient = previous_grad @ input_example.T
+        input_example_gradient = self.weights.T @ previous_grad
+        return weight_gradient, input_example_gradient
 
 
 class SigmoidLayer:
@@ -60,6 +71,15 @@ class SigmoidLayer:
         :return: Vector of post-sigmoid values
         """
         return 1 / (1 + (np.exp(-input_example)))
+
+    def sigmoid_backward(self, input_example, previous_grad):
+        """Backward computation of the sigmoid function
+
+        :param input_example: Vector containing the features
+        :param previous_grad: Matrix calculated by the previous backpropagation step
+        :return: Gradient matrix
+        """
+        return previous_grad * input_example * (1 - input_example)
 
 
 class SoftmaxLayer:
@@ -88,17 +108,17 @@ class SoftmaxLayer:
         collection_vector = [value / denominator_value for value in numerator_vector]
         return collection_vector
 
-    def softmax_backward(self, softmax_forward_output_vector, predicted_vector, previous_grad):
+    def softmax_backward(self, predicted_vector, previous_grad):
         """Calculates the gradient wrt. the predicted vector for the backward computation of the softmax.
 
-        :param softmax_forward_output_vector: Scalar softmax output vector from the output of the forward computation.
-        :param predicted_vector: Vector containing the probability of each class for one example.
-        :param previous_grad: Vector containing the previous gradient.
-        :return: Gradient matrix, where the Jacobian of the softmax is scaled by the previous gradient vector.
+        :param predicted_vector: Vector containing the probability of each class for one example. (shape Kx1)
+        :param previous_grad: Vector containing the previous gradient. (Kx1)
+        :return: Gradient matrix, where the Jacobian of the softmax is scaled by the previous gradient vector. (KxK)
         """
         diagonal_predicted_vector = np.diagflat(predicted_vector)
-        squared_predicted_vector = np.square(predicted_vector)
-        return np.multiply(previous_grad, np.subtract(diagonal_predicted_vector, squared_predicted_vector))
+        squared_predicted_vector = predicted_vector @ predicted_vector.T
+        return previous_grad.T @ np.subtract(diagonal_predicted_vector, squared_predicted_vector)
+        # return np.multiply(previous_grad, np.subtract(diagonal_predicted_vector, squared_predicted_vector))
 
 
 class CrossEntropyLayer:
@@ -123,16 +143,15 @@ class CrossEntropyLayer:
         :param predicted_vector: Vector containing the probability of each class for one example.
         :return: Scalar cross-entropy value
         """
-        return -np.dot(real_vector.T, np.log(predicted_vector))
+        return -real_vector.T @ np.log(predicted_vector)
 
-    def cross_entropy_backward(self, real_vector, predicted_vector, x_entropy_forward_output_vector, previous_grad):
+    def cross_entropy_backward(self, real_vector, predicted_vector, previous_grad):
         """Calculates the gradient wrt. the predicted vector for the backward computation of the cross-entropy.
 
-        :param real_vector: One-hot vector where only the real label is 1.
-        :param predicted_vector: Vector containing the probability of each class for one example.
-        :param x_entropy_forward_output_vector: Scalar cross-entropy value from the output of the forward computation.
-        :param previous_grad: Scalar starting gradient. Assumed to be 1, from dJ/dJ = 1.
-        :return: Gradient wrt. the predicted vector. Size will be equal to that of the real and predicted vectors.
+        :param real_vector: One-hot vector where only the real label is 1. (shape Kx1)
+        :param predicted_vector: Vector containing the probability of each class for one example. (shape Kx1)
+        :param previous_grad: Scalar starting gradient. Assumed to be 1, from dJ/dJ = 1. (shape 1x1)
+        :return: Gradient wrt. the predicted vector. Size will be equal to that of the real and predicted vectors. (shape Kx1)
         """
         # Make sure that the vectors are of the same length.
         if len(real_vector) != len(predicted_vector):
