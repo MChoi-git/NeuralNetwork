@@ -56,7 +56,6 @@ def test_softmax_backward():
     assert np.array_equal(grad_resultant.shape, m.softmax_backward(np.arange(3), np.arange(3)).shape)
 
 
-
 def test_cross_entropy_forward():
     m = CrossEntropyLayer(3)
     real_vector = np.array([0, 1, 0])

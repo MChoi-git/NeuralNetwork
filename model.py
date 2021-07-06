@@ -10,11 +10,8 @@ class Net:
         # Sigmoid activations
         self.sig1 = nn.SigmoidLayer(128)
 
-    def backward(self, example_label, example_features, forward_values, previous_grad):
-        # Making forward quantities readable
-        lin1 = forward_values[0]
-        sig1 = forward_values[1]
-        beta_grad, lin2_grad = self.lin2.linear_backward(sig1, previous_grad)
-        sig1_grad = self.sig1.sigmoid_backward(lin1, lin2_grad)
-        alpha_grad, lin1_grad = self.lin1.linear_backward(example_features, sig1_grad)
-        return alpha_grad, beta_grad
+    def forward(self, example_features):
+        output = self.lin1.linear_forward(example_features)
+        output = self.sig1.sigmoid_forward(output)
+        output = self.lin2.linear_forward(output)
+        return output
