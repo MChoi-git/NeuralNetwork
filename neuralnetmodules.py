@@ -44,7 +44,7 @@ class LinearLayer:
         :param previous_grad: Matrix calculated by the previous backpropagation step
         :return: Gradient matrix
         """
-        weight_gradient = previous_grad @ input_example.T
+        weight_gradient = np.outer(previous_grad, input_example.T)
         input_example_gradient = self.weights.T @ previous_grad
         return weight_gradient, input_example_gradient
 
@@ -105,7 +105,7 @@ class SoftmaxLayer:
         """
         numerator_vector = np.exp(input_example)
         denominator_value = np.sum(np.exp(input_example))
-        collection_vector = [value / denominator_value for value in numerator_vector]
+        collection_vector = np.array([value / denominator_value for value in numerator_vector])
         return collection_vector
 
     def softmax_backward(self, predicted_vector, previous_grad):
@@ -116,8 +116,8 @@ class SoftmaxLayer:
         :return: Gradient matrix, where the Jacobian of the softmax is scaled by the previous gradient vector. (KxK)
         """
         diagonal_predicted_vector = np.diagflat(predicted_vector)
-        squared_predicted_vector = predicted_vector @ predicted_vector.T
-        return previous_grad.T @ np.subtract(diagonal_predicted_vector, squared_predicted_vector)
+        squared_predicted_vector = np.outer(predicted_vector, predicted_vector.T)
+        return np.dot(previous_grad.T, (diagonal_predicted_vector - squared_predicted_vector))
 
 
 class CrossEntropyLayer:
