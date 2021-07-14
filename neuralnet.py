@@ -1,8 +1,10 @@
 import sys
+
+import matplotlib.pyplot as plt
 import numpy as np
 import train as t
 import predict as p
-import csv
+import seaborn as sns
 
 
 def to_csv(filename, data):
@@ -25,7 +27,7 @@ def main():
     learning_rate = float(sys.argv[9])
 
     # Train
-    neural_net = t.train_entire_net(train_input, num_epoch, hidden_units, init_flag, learning_rate, metrics_out)
+    neural_net, loss_list = t.train_entire_net(train_input, num_epoch, hidden_units, init_flag, learning_rate, metrics_out)
     # Predict
     trained_predictions, trained_average_loss, trained_error = p.predict(train_input, neural_net)
     tested_predictions, tested_average_loss, tested_error = p.predict(test_input, neural_net)
@@ -38,6 +40,14 @@ def main():
                      f"Training set last average loss: {trained_average_loss}\n"
                      f"Testing set error: {tested_error}\n"
                      f"Testing set average loss: {tested_average_loss}")
+    # Graph the average loss across all epochs
+    y_loss = np.array(loss_list)
+    x_epochs = np.arange(1, len(y_loss) + 1)
+    sns.set()
+    loss_plot = sns.lineplot(x=x_epochs, y=y_loss)
+    loss_plot.set(xlabel='Epoch', ylabel='Cross-entropy loss')
+    plt.title('Cross-entropy Loss vs Epoch')
+    plt.show()
 
 
 if __name__ == "__main__":

@@ -104,4 +104,4 @@ def train_entire_net(filename, num_epochs, num_hidden_nodes, weight_flag,  learn
     with open(metrics_file, "w") as f:
         for i in range(len(avg_loss_list)):
             f.writelines(f"Average loss for epoch {i} is {avg_loss_list[i]}\n")
-    return net
+    return net, avg_loss_list
